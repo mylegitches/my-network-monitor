@@ -9,8 +9,7 @@ import re
 from datetime import datetime, timezone
 
 DB_NAME = "speedtest_data.db"
-# INTERVAL_SECONDS = 1800  # 30 minutes
-INTERVAL_SECONDS = 30  # 30 seconds
+INTERVAL_SECONDS = 1800  # 30 minutes
 
 ROUTER_IP = "192.168.1.1"
 INTERNET_IP = "8.8.8.8"
@@ -60,7 +59,8 @@ def run_speedtest():
             [".\\speedtest.exe", "-f", "json", "--accept-license", "--accept-gdpr"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
         )
         
         # The CLI might output license info on the first run, so we grab the last non-empty line
@@ -85,7 +85,8 @@ def check_ping(host):
             ["ping", "-n", "1", "-w", "2000", host],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
         )
         
         if result.returncode != 0:
@@ -157,16 +158,13 @@ def main():
     init_db()
     
     import ip_scanner
-    loop_count = 0
     while True:
-        # Run IP scan every 10 loops (approx 5 minutes)
-        if loop_count % 10 == 0:
-            print(f"[{datetime.now().isoformat()}] Running IP scan...")
-            try:
-                ip_scanner.perform_scan()
-            except Exception as e:
-                print(f"IP scan failed: {e}")
-        loop_count += 1
+        # Run IP scan every loop
+        print(f"[{datetime.now().isoformat()}] Running IP scan...")
+        try:
+            ip_scanner.perform_scan()
+        except Exception as e:
+            print(f"IP scan failed: {e}")
         
         # Perform network checks
         print(f"[{datetime.now().isoformat()}] Running network checks...")

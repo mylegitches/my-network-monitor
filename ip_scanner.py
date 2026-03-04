@@ -76,12 +76,12 @@ def get_manufacturer(mac, oui_mapping):
 
 def ping_host(ip):
     # -n 1 = 1 ping, -w 200 = 200ms timeout
-    subprocess.run(["ping", "-n", "1", "-w", "200", ip], capture_output=True)
+    subprocess.run(["ping", "-n", "1", "-w", "200", ip], capture_output=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000))
     return ip
 
 def get_active_arp_entries():
     # Run arp -a to get IP to MAC mappings
-    result = subprocess.run(["arp", "-a"], capture_output=True, text=True)
+    result = subprocess.run(["arp", "-a"], capture_output=True, text=True, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000))
     entries = []
     # arp -a format Windows:
     # Interface: 192.168.1.100 --- 0x4
